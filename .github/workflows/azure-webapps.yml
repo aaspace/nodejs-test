@@ -26,17 +26,21 @@ env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '18.x'                # set this to the node version to use
+  SCAN_FORTIFY: true
+  SCAN_SONAR: true
+  SCAN_BLACKDUCK: true
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  setup:
     runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
-    - name: Npm clean cache ???
+    - name: Npm clean cache (needed?)
       run: pwd
 
     - name: Set up Node.js
@@ -45,7 +49,36 @@ jobs:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
-    - name: npm install, build, and test
+    - name: Copy .npmrc (TBD)
+      run: pwd
+
+  scan_fortify:
+    runs-on: self-hosted
+    needs: setup
+    if: env.SCAN_FORTIFY == true
+    steps:
+
+    - name: Java Installer for Fortify (TBD)
+      run: pwd
+
+    - name: Install Foritify packages (TBD)
+      run: pwd
+
+    - name: Extract Tar file for Fortify (TBD)
+      run: pwd
+
+    - name: Scan - Fortify (TBD)
+      run: pwd
+
+    - name: Publish - Fortify report (TBD)
+      run: pwd
+    
+  build:
+    runs-on: self-hosted
+    needs: [setup, scan_fortify]
+    steps:
+
+    - name: npm install, build(, and test)
       run: |
         npm install
         npm run build --if-present
@@ -62,11 +95,29 @@ jobs:
         name: node-app
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz
 
+  scan_sonar:
+    runs-on: self-hosted
+    needs: build
+    if: env.SCAN_SONAR == true
+    steps:
+    - name: Install SonarQube (TBD)
+      run: pwd
+    - name: Scan SonarQube (TBD)
+      run: pwd
+
+  scan_blackduck:
+    runs-on: self-hosted
+    needs: [build, scan_sonar]
+    if: env.SCAN_BLACKDUCK == true
+    steps:
+    - name: Scan BlackDuck (TBD)
+      run: pwd
+
   deploy:
     permissions:
       contents: read
     runs-on: self-hosted
-    needs: build
+    needs: [build, scan_sonar, scan_blackduck]
     environment:
       name: 'Development'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
@@ -82,10 +133,19 @@ jobs:
       run: |
         tar -xvf ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz -C ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
-    - name: 'Deploy to Azure WebApp'
+    - name: Update AppService Settings (TBD)
+      run: pwd
+
+    - name: Deploy to Stage slot
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    
+    - name: Wait validation (TBD)
+      run: pwd
+
+    - name: Swap slots (TBD)
+      run: pwd
