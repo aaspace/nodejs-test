@@ -53,7 +53,7 @@ jobs:
       run: pwd
 
   scan_fortify:
-    if: env.SCAN_FORTIFY == 'true'
+    if: ${{ env.SCAN_FORTIFY }}  == 'true'
     needs: setup
     runs-on: self-hosted
     steps:
@@ -96,7 +96,7 @@ jobs:
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz
 
   scan_sonar:
-    if: env.SCAN_SONAR == 'true'
+    if: ${{ env.SCAN_SONAR }} == 'true'
     needs: build
     runs-on: self-hosted
     steps:
@@ -106,7 +106,7 @@ jobs:
       run: pwd
 
   scan_blackduck:
-    if: env.SCAN_BLACKDUCK == 'true'
+    if: ${{ env.SCAN_BLACKDUCK }} == 'true'
     needs: [build, scan_sonar]
     runs-on: self-hosted
     steps:
