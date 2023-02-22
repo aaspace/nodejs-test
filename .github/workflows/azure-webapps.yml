@@ -26,9 +26,9 @@ env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '18.x'                # set this to the node version to use
-  SCAN_FORTIFY: true
-  SCAN_SONAR: true
-  SCAN_BLACKDUCK: true
+  SCAN_FORTIFY: 'true'
+  SCAN_SONAR: 'true'
+  SCAN_BLACKDUCK: 'true'
 
 permissions:
   contents: read
@@ -53,9 +53,9 @@ jobs:
       run: pwd
 
   scan_fortify:
-    runs-on: self-hosted
+    if: env.SCAN_FORTIFY == 'true'
     needs: setup
-    if: env.SCAN_FORTIFY == true
+    runs-on: self-hosted
     steps:
 
     - name: Java Installer for Fortify (TBD)
@@ -74,8 +74,8 @@ jobs:
       run: pwd
     
   build:
-    runs-on: self-hosted
     needs: [setup, scan_fortify]
+    runs-on: self-hosted
     steps:
 
     - name: npm install, build(, and test)
@@ -96,9 +96,9 @@ jobs:
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz
 
   scan_sonar:
-    runs-on: self-hosted
+    if: env.SCAN_SONAR == 'true'
     needs: build
-    if: env.SCAN_SONAR == true
+    runs-on: self-hosted
     steps:
     - name: Install SonarQube (TBD)
       run: pwd
@@ -106,18 +106,18 @@ jobs:
       run: pwd
 
   scan_blackduck:
-    runs-on: self-hosted
+    if: env.SCAN_BLACKDUCK == 'true'
     needs: [build, scan_sonar]
-    if: env.SCAN_BLACKDUCK == true
+    runs-on: self-hosted
     steps:
     - name: Scan BlackDuck (TBD)
       run: pwd
 
   deploy:
+    needs: [build, scan_sonar, scan_blackduck]
     permissions:
       contents: read
     runs-on: self-hosted
-    needs: [build, scan_sonar, scan_blackduck]
     environment:
       name: 'Development'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
