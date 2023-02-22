@@ -56,7 +56,7 @@ jobs:
 
   deploy:
     permissions:
-      contents: none
+      contents: read
     runs-on: self-hosted
     needs: build
     environment:
