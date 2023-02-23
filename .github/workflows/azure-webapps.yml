@@ -84,7 +84,10 @@ jobs:
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz
 
     - name: Install SonarQube (TBD)
-      run: pwd
+      run: |
+        pwd
+        echo ${{ secrets.SONAR_TOKEN }}
+        echo ${{ secrets.SONAR_HOST_URL }}
 
     - name: Scan SonarQube
       uses: sonarsource/sonarqube-scan-action@master
