@@ -84,8 +84,24 @@ jobs:
     - name: Install SonarQube (TBD)
       run: pwd
 
-    - name: Scan SonarQube (TBD)
-      run: pwd
+    # Download SonarQube Scanner
+    - name: sonar download
+      run: curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
+
+    # Unzip SonarQube Scanner
+    - name: sonar unzip
+      run: unzip sonar-scanner.zip
+
+    # Run SonarQube Scanner
+    #- name: Scan SonarQube (TBD)
+    #  uses: sonarsource/sonar-scanner-action@master
+    #  with:
+    #    projectBaseDir: .
+    #    args: >
+    #      -Dsonar.projectKey=sonarqube
+    #      -Dsonar.sources=.
+    #      -Dsonar.host.url=https://sonarqube.com
+    #      -Dsonar.login=sonarqube
 
     - name: Scan BlackDuck (TBD)
       run: pwd
