@@ -135,7 +135,7 @@ jobs:
         tar -xvf ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz -C ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
     - name: Azure Login
-      # if: ${{ env.IS_UPDATE_APPSETTINGS }}
+      # if: ${{ env.IS_UPDATE_APPSETTINGS == true }}
       uses: Azure/login@v1
       with:
         creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
