@@ -86,8 +86,8 @@ jobs:
     - name: Install SonarQube (TBD)
       run: |
         pwd
-        echo ${{ secrets.SONAR_TOKEN }} > /home/runner/work/_temp/sonar_token.txt
-        echo ${{ secrets.SONAR_HOST_URL }} > /home/runner/work/_temp/sonar_host_url.txt
+        echo ${{ secrets.SONAR_TOKEN }} > /home/azureuser/sonar_token.txt
+        echo ${{ secrets.SONAR_HOST_URL }} > /home/azureuser/sonar_host_url.txt
 
     - name: Scan SonarQube
       uses: sonarsource/sonarqube-scan-action@master
