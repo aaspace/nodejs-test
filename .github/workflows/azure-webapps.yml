@@ -95,21 +95,21 @@ jobs:
       run: unzip sonar-scanner.zip
 
     # Run SonarQube Scanner
-    #- name: Scan SonarQube (TBD)
-    #  uses: sonarsource/sonar-scanner-action@master
-    #  with:
-    #    projectBaseDir: .
-    #    args: >
-    #      -Dsonar.projectKey=sonarqube
-    #      -Dsonar.sources=.
-    #      -Dsonar.host.url=https://sonarqube.com
-    #      -Dsonar.login=sonarqube
-    
-    - name: Scan SonarQube
-      uses: sonarsource/sonarqube-scan-action@master
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    - name: Scan SonarQube (TBD)
+      uses: sonarsource/sonar-scanner-action@master
+      with:
+        projectBaseDir: .
+        args: >
+          -Dsonar.projectKey=Demo
+          -Dsonar.sources=.
+          -Dsonar.host.url=http://localhost:9000
+          -Dsonar.login=sqp_5786b73782b43800b930b509852b4d2aa969e02b
+
+    #- name: Scan SonarQube
+    #  uses: sonarsource/sonarqube-scan-action@master
+    #  env:
+    #    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #    SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
     - name: Scan BlackDuck (TBD)
       run: pwd
