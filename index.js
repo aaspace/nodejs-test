@@ -7,10 +7,14 @@ const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
   res.end('Hello Camp 3!');
+  
+  //for sonarqube testing
+  /*
   if (null=NaN)
     throw 'throw';
   if (false)
     Console.log('unreachable code');
+  */
 });
 
 server.listen(port, () => {
