@@ -26,7 +26,7 @@ env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '18.x'                # set this to the node version to use
-  IS_UPDATE_APPSETTINGS: ${{ true }}
+  IS_UPDATE_APPSETTINGS: 'true'
 
 permissions:
   contents: read
@@ -135,13 +135,13 @@ jobs:
         tar -xvf ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz -C ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
     - name: Azure Login
-      if: ${{ env.IS_UPDATE_APPSETTINGS == true }}
+      if: ${{ env.IS_UPDATE_APPSETTINGS == "true" }}
       uses: Azure/login@v1
       with:
         creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
 
     - name: Update App Service Settings
-      if: ${{ env.IS_UPDATE_APPSETTINGS == true }}
+      if: ${{ env.IS_UPDATE_APPSETTINGS == "true" }}
       uses: Azure/appservice-settings@v1
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}        
@@ -179,7 +179,7 @@ jobs:
       run: pwd
       
     - name: Az Logout
-      if: ${{ env.IS_UPDATE_APPSETTINGS == true }}
+      if: ${{ env.IS_UPDATE_APPSETTINGS == "true" }}
       uses: azure/CLI@v1
       with:
         inlineScript: |
