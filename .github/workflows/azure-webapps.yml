@@ -26,7 +26,7 @@ env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '18.x'                # set this to the node version to use
-  IS_UPDATE_APPSETTINGS: ${{ true }}
+  IS_UPDATE_APPSETTINGS: ${{ false }}
 
 permissions:
   contents: read
@@ -179,7 +179,7 @@ jobs:
       run: pwd
       
     - name: Az Logout
-      # if: ${{ env.IS_UPDATE_APPSETTINGS == true }}
+      # if: ${{ env.IS_UPDATE_APPSETTINGS }}
       uses: azure/CLI@v1
       with:
         inlineScript: |
