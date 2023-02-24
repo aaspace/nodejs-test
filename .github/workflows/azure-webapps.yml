@@ -19,13 +19,14 @@
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '18.x'                # set this to the node version to use
+  IS_UPDATE_APPSETTINGS: 'true'
 
 permissions:
   contents: read
@@ -36,6 +37,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: Npm clean cache (needed?)
       run: pwd
@@ -68,7 +71,7 @@ jobs:
       run: |
         npm install
         npm run build --if-present
-# npm run test --if-present
+        npm run test --if-present
 
     - name: 'Archive production artifacts'
       run: |
@@ -81,27 +84,32 @@ jobs:
         name: node-app
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz
 
-    - name: Install SonarQube (TBD)
-      run: pwd
+    # SonarQube Scan
+    - name: Scan code with SonarQube
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-    # Download SonarQube Scanner
-    - name: sonar download
-      run: curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
+    # Collect the SonarQube Quality Gate status
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      # Force to fail step after specific time.
+      timeout-minutes: 5
+      env:
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
 
-    # Unzip SonarQube Scanner
-    - name: sonar unzip
-      run: unzip sonar-scanner.zip
-
-    # Run SonarQube Scanner
-    #- name: Scan SonarQube (TBD)
-    #  uses: sonarsource/sonar-scanner-action@master
-    #  with:
-    #    projectBaseDir: .
-    #    args: >
-    #      -Dsonar.projectKey=sonarqube
-    #      -Dsonar.sources=.
-    #      -Dsonar.host.url=https://sonarqube.com
-    #      -Dsonar.login=sonarqube
+    # Stop pipeline if Quality Gate failed.
+    # The possible outputs of the `quality-gate-status` variable are `PASSED`, `WARN` or `FAILED`.
+    - name: "Check SonarQube Quality Gate Status"
+      run: |
+        echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+        if [ "${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}" != "PASSED" ]; then
+          echo "Quality Gate failed"
+          exit 1
+        fi
 
     - name: Scan BlackDuck (TBD)
       run: pwd
@@ -126,8 +134,35 @@ jobs:
       run: |
         tar -xvf ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz -C ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
+    - name: Azure Login
+      if: env.IS_UPDATE_APPSETTINGS == 'true'
+      uses: Azure/login@v1
+      with:
+        creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
+
     - name: Update App Service Settings
-      run: pwd
+      if: env.IS_UPDATE_APPSETTINGS == 'true'
+      uses: Azure/appservice-settings@v1
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}        
+        # slot-name: # optional # Name of an existing slot other than the production slot. Default value is production
+        # Application settings using the JSON syntax set as value of secret variable: APP_SETTINGS
+        app-settings-json: | # optional
+          [
+            {
+              "name": "key1",
+              "value": "value1",
+              "slotSetting": false
+            },
+            {
+              "name": "key2",
+              "value": "value2",
+              "slotSetting": false
+            }
+          ]
+        # connection-strings-json: # optional # Connection Strings using the JSON syntax set as value of secret variable: CONNECTION_STRINGS
+        # general-settings-json: # optional # General configuration settings using dictionary syntax - Key Value pairs
+        # mask-inputs: # optional, default is true # Set it to false if you want to provide input jsons as plain text/you do not want input json values to be masked. This will apply to all input jsons. Default is true
       
     - name: Deploy to Stage slot
       id: deploy-to-webapp
@@ -142,3 +177,13 @@ jobs:
 
     - name: Swap slots (TBD)
       run: pwd
+      
+    - name: Az Logout
+      if: env.IS_UPDATE_APPSETTINGS == 'true'
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az logout
+          az cache purge
+          az account clear
+    
