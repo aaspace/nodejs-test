@@ -35,6 +35,21 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
+    
+    # tmp show context:
+    - name: Dump GitHub context
+      run: echo '${{ toJSON(github) }}'
+    - name: Dump job context
+      run: echo '${{ toJSON(job) }}'
+    - name: Dump steps context
+      run: echo '${{ toJSON(steps) }}'
+    - name: Dump runner context
+      run: echo '${{ toJSON(runner) }}'
+    - name: Dump strategy context
+      run: echo '${{ toJSON(strategy) }}'
+    - name: Dump matrix context
+      run: echo '${{ toJSON(matrix) }}'
+        
     - name: Checkout
       uses: actions/checkout@v3
       with:
