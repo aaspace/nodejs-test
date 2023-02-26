@@ -28,7 +28,10 @@ env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '18.x'                # set this to the node version to use
-  IS_UPDATE_APPSETTINGS: 'true'
+  UPDATE_APPSETTINGS_ENABLED: 'true'
+  FORTIFY_ENABLED: 'false'
+  BLACKDUCK_ENABLED: 'false'
+  SONARQUBE_ENABLED: 'true'
 
 permissions:
   contents: read
@@ -39,8 +42,12 @@ jobs:
     steps:
     
     # tmp show context:
-    - name: Dump GitHub context
+    - name: github context
       run: echo '${{ toJSON(github) }}'
+    - name: env context
+      run: echo '${{ toJSON(env) }}'
+    - name: vars context
+      run: echo '${{ toJSON(vars) }}'
         
     - name: Checkout
       uses: actions/checkout@v3
@@ -60,18 +67,23 @@ jobs:
       run: pwd
 
     - name: Java Installer for Fortify (TBD)
+      if: env.FORTIFY_ENABLED == 'true'
       run: pwd
 
     - name: Install Foritify packages (TBD)
+      if: env.FORTIFY_ENABLED == 'true'
       run: pwd
 
     - name: Extract Tar file for Fortify (TBD)
+      if: env.FORTIFY_ENABLED == 'true'
       run: pwd
 
     - name: Scan - Fortify (TBD)
+      if: env.FORTIFY_ENABLED == 'true'
       run: pwd
 
     - name: Publish - Fortify report (TBD)
+      if: env.FORTIFY_ENABLED == 'true'
       run: pwd
 
     - name: npm install, build(, and test)
@@ -93,6 +105,7 @@ jobs:
 
     # SonarQube Scan
     - name: Scan code with SonarQube
+      if: env.SONARQUBE_ENABLED == 'true'
       uses: sonarsource/sonarqube-scan-action@master
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -100,6 +113,7 @@ jobs:
 
     # Collect the SonarQube Quality Gate status
     - name: SonarQube Quality Gate check
+      if: env.SONARQUBE_ENABLED == 'true'
       id: sonarqube-quality-gate-check
       uses: sonarsource/sonarqube-quality-gate-action@master
       # Force to fail step after specific time.
@@ -111,6 +125,7 @@ jobs:
     # Stop pipeline if Quality Gate failed.
     # The possible outputs of the `quality-gate-status` variable are `PASSED`, `WARN` or `FAILED`.
     - name: "Check SonarQube Quality Gate Status"
+      if: env.SONARQUBE_ENABLED == 'true'
       run: |
         echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
         if [ "${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}" != "PASSED" ]; then
@@ -119,6 +134,7 @@ jobs:
         fi
 
     - name: Scan BlackDuck (TBD)
+      if: env.BLACKDUCK_ENABLED == 'true'
       run: pwd
 
   deploy:
@@ -142,13 +158,13 @@ jobs:
         tar -xvf ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz -C ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
     - name: Azure Login
-      if: env.IS_UPDATE_APPSETTINGS == 'true'
+      if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
       uses: Azure/login@v1
       with:
         creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
 
     - name: Update App Service Settings
-      if: env.IS_UPDATE_APPSETTINGS == 'true'
+      if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
       uses: Azure/appservice-settings@v1
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}        
@@ -181,12 +197,18 @@ jobs:
     
     - name: Wait validation (TBD)
       run: pwd
-
+      
+    - name: Health check (TBD)
+      run: pwd
+    
+    - name: Wait approve (TBD)
+      run: pwd
+    
     - name: Swap slots (TBD)
       run: pwd
       
     - name: Az Logout
-      if: env.IS_UPDATE_APPSETTINGS == 'true'
+      if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
       uses: azure/CLI@v1
       with:
         inlineScript: |
