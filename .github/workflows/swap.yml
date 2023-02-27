@@ -2,8 +2,6 @@ name: Swap slots
 
 on:
   workflow_dispatch:
-  push:
-    branches: ['research']
 
 env:
   AZURE_WEBAPP_NAME: aanodejstest                
@@ -20,17 +18,14 @@ jobs:
 
     steps:
     - name: Azure Login
-      if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
       uses: Azure/login@v1
       with:
         creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
     
     - name: Swap slots
-      if: ${{ inputs.perform_swap }}
       run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
-      if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
       uses: azure/CLI@v1
       with:
         inlineScript: |
