@@ -217,7 +217,7 @@ jobs:
       run: pwd
     
     - name: Swap slots
-      run: az webapp deployment slot swap -s ${{ env.SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ env.AZ_RESOURCE_GROUP }}
+      run: az webapp deployment slot swap -s ${{ env.SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secret.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
       if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
