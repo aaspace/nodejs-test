@@ -28,6 +28,10 @@ on:
         required: true
         type: boolean
         default: true
+      perform_swap:
+        required: true
+        type: boolean
+        default: true
 
 env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
@@ -217,6 +221,7 @@ jobs:
       run: pwd
     
     - name: Swap slots
+      if: ${{ inputs.perform_swap }}
       run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
