@@ -2,6 +2,8 @@ name: Swap slots
 
 on:
   workflow_dispatch:
+  push:
+    branches: ['research']
 
 env:
   AZURE_WEBAPP_NAME: aanodejstest                
