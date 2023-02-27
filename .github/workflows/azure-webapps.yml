@@ -214,10 +214,3 @@ jobs:
           az cache purge
           az account clear
     
-    - name: Release-please
-      uses: google-github-actions/release-please-action@v3
-      with:
-        release-type: node-app
-        package-name: release-please-action
-        token: ${{ secrets.GITHUB_TOKEN }}
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz
