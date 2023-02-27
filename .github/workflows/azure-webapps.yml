@@ -27,6 +27,7 @@ on:
       perform_deploy:
         required: true
         type: boolean
+        default: true
 
 env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
@@ -36,6 +37,7 @@ env:
   FORTIFY_ENABLED: 'false'
   BLACKDUCK_ENABLED: 'false'
   SONARQUBE_ENABLED: 'true'
+  SLOT_NAME: 'staging'
 
 permissions:
   contents: read
@@ -190,21 +192,33 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        slot-name: ${{ env.SLOT_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
     
     - name: Wait validation (TBD)
       run: pwd
       
-    - name: Health check (TBD)
-      run: pwd
+    - name: Health check
+      uses: jtalk/url-health-check-action@v3
+      with:
+        # Check the following URLs one by one sequentially
+        url: ${{ vars.STAGE_SLOT_URL }}
+        # Follow redirects, or just report success on 3xx status codes
+        follow-redirect: false # Optional, defaults to "false"
+        # Fail this action after this many failed attempts
+        max-attempts: 1 # Optional, defaults to 1
+        # Delay between retries
+        retry-delay: 5s # Optional, only applicable to max-attempts > 1
+        # Retry all errors, including 404. This option might trigger curl upgrade.
+        retry-all: false # Optional, defaults to "false"
     
     - name: Wait approve (TBD)
       run: pwd
     
-    - name: Swap slots (TBD)
-      run: pwd
-      
+    - name: Swap slots
+      run: az webapp deployment slot swap -s ${{ env.SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
+          
     - name: Az Logout
       if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
       uses: azure/CLI@v1
