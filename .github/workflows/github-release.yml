@@ -3,11 +3,7 @@ name:  Create GitHub Release
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
-    inputs:
-      perform_deploy:
-        required: true
-        type: boolean
+
 
 env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
