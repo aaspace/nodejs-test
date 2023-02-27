@@ -28,10 +28,10 @@ on:
         required: true
         type: boolean
         default: true
-      perform_swap:
-        required: true
-        type: boolean
-        default: true
+      # perform_swap:
+        # required: true
+        # type: boolean
+        # default: true
 
 env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
@@ -185,7 +185,7 @@ jobs:
       uses: Azure/appservice-settings@v1
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}        
-        # slot-name: # optional # Name of an existing slot other than the production slot. Default value is production
+        slot-name: ${{ env.STAGE_SLOT_NAME }} # optional # Name of an existing slot other than the production slot. Default value is production
         app-settings-json: ${{ steps.appsettings.outputs.content }}      # Application settings using the JSON syntax set as value of secret variable: APP_SETTINGS
         # connection-strings-json: # optional # Connection Strings using the JSON syntax set as value of secret variable: CONNECTION_STRINGS
         # general-settings-json: # optional # General configuration settings using dictionary syntax - Key Value pairs
@@ -221,7 +221,7 @@ jobs:
       run: pwd
     
     - name: Swap slots
-      if: ${{ inputs.perform_swap }}
+      # if: ${{ inputs.perform_swap }}
       run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
