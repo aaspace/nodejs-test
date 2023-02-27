@@ -6,9 +6,9 @@ const port = 8080;
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
-  res.end("Hello Camp 4 \n \
-  common: " + process.env['Common_key'] + " \n \
-  slot: " + process.env['slot_key']);
+  res.end("Hello Camp 4 " +
+  "</br>common: " + process.env['Common_key'] + 
+  "</br>slot: " + process.env['slot_key']);
   
   //for sonarqube testing
   /*
