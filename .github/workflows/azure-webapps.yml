@@ -48,7 +48,7 @@ env:
   PERFORM_DEPLOY: ${{ inputs.perform_deploy != false }}
   PERFORM_SWAP: ${{ inputs.perform_swap }}
   AAAAA: ${{ true }}
-  BBBBB: ${{ inputs.perform_deploy === undefined }}
+  BBBBB: ${{ inputs.perform_deploy == undefined }}
 
 permissions:
   contents: read
