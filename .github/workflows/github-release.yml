@@ -1,23 +1,14 @@
 name:  Create GitHub Release
 
 on:
-  push:
-    branches: [ "main" ]
   workflow_dispatch:
-
-
-env:
-  AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: '18.x'                # set this to the node version to use
-
 
 permissions:
   contents: write
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     
     # checkout code    
@@ -27,8 +18,8 @@ jobs:
         fetch-depth: 0
     
     # dump token
-    - name: dump token
-      run: echo ${{ secrets.GITHUB_TOKEN }} > github.token
+    # - name: dump token
+    #  run: echo ${{ secrets.GITHUB_TOKEN }} > github.token
 
     # create release
     - name: Create release
@@ -36,7 +27,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ github.run_number }}
+        release_name: Release ${{ github.ref }} ${{ github.run_number }}
         draft: false
         prerelease: false
