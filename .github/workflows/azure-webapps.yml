@@ -66,6 +66,19 @@ jobs:
         echo vars: '${{ toJSON(vars) }}'
         echo github: '${{ toJSON(github) }}'
         
+    - name: check
+      if: ${{ env.PERFORM_DEPLOY }}
+      run: pwd
+    - name: check2
+      if: ${{ env.PERFORM_DEPLOY == "true" }}
+      run: pwd
+    - name: check3
+      if: env.PERFORM_DEPLOY
+      run: pwd
+    - name: check4
+      if: env.PERFORM_DEPLOY == 'true'
+      run: pwd
+        
     - name: Checkout
       uses: actions/checkout@v3
       with:
