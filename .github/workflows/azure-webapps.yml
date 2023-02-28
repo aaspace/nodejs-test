@@ -55,9 +55,9 @@ jobs:
     # tmp
     - name: show context
       run: |
-        echo github: '${{ toJSON(github) }}'
         echo env: '${{ toJSON(env) }}'
         echo vars: '${{ toJSON(vars) }}'
+        echo github: '${{ toJSON(github) }}'
         
     - name: Checkout
       uses: actions/checkout@v3
@@ -148,7 +148,7 @@ jobs:
       run: pwd
 
   deploy:
-    if: ${{ inputs.perform_deploy }}
+    if: false # ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
     needs: build
     permissions:
       contents: read
@@ -221,7 +221,7 @@ jobs:
       run: pwd
     
     - name: Swap slots
-      if: ${{ inputs.perform_swap }}
+      if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_swap }}
       run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
