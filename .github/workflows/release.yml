@@ -2,11 +2,11 @@ name:  Create Release
 
 on:
   push:
-    branches: [ "research" ]
+    branches: [ "trigger_ref" ]
   workflow_dispatch:
 
-#permissions:
-#  contents: read
+permissions:
+  contents: read
 
 jobs:
   release:
