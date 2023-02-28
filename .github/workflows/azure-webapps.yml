@@ -168,7 +168,7 @@ jobs:
       run: pwd
 
   depl:
-    if: env.PERFORM_DEPLOY
+    if: ${{ env.PERFORM_DEPLOY }}
     needs: build
     runs-on: self-hosted
     steps:
