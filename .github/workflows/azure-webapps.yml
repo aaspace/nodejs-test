@@ -155,7 +155,7 @@ jobs:
       run: pwd
 
   deploy:
-    if: env.PERFORM_DEPLOY
+    if: false # env.PERFORM_DEPLOY
     needs: build
     permissions:
       contents: read
@@ -228,7 +228,7 @@ jobs:
       run: pwd
     
     - name: Swap slots
-      if: env.PERFORM_SWAP
+      if: false # env.PERFORM_SWAP
       run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
