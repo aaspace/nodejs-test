@@ -45,6 +45,7 @@ env:
   STAGE_SLOT_NAME: 'staging'
   # PERFORM_DEPLOY: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_deploy) }}
   # PERFORM_SWAP: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_swap) }}
+  PERFORM_DEPLOY: ${{ inputs.perform_deploy != false }}
 
 permissions:
   contents: read
