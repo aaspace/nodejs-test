@@ -43,12 +43,10 @@ env:
   BLACKDUCK_ENABLED: 'false'
   SONARQUBE_ENABLED: 'true'
   STAGE_SLOT_NAME: 'staging'
-  # PERFORM_DEPLOY: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_deploy) }}
-  # PERFORM_SWAP: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_swap) }}
-  PERFORM_DEPLOY: ${{ inputs.perform_deploy != false }}
-  PERFORM_SWAP: ${{ inputs.perform_swap }}
-  AAAAA: ${{ true }}
-  BBBBB: ${{ inputs.perform_deploy == undefined }}
+  PERFORM_DEPLOY: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
+  PERFORM_SWAP: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_swap) }}
+  PERFORM_DEPLOY2: ${{ inputs.perform_deploy != false }}
+  PERFORM_SWAP2: ${{ inputs.perform_swap }}
 
 permissions:
   contents: read
