@@ -70,7 +70,7 @@ jobs:
       if: ${{ env.PERFORM_DEPLOY }}
       run: pwd
     - name: check2
-      if: ${{ env.PERFORM_DEPLOY == "true" }}
+      if: ${{ env.PERFORM_DEPLOY == 'true' }}
       run: pwd
     - name: check3
       if: env.PERFORM_DEPLOY
