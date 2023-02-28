@@ -22,7 +22,7 @@ run-name: Build and Deploy. ${{ github.event_name}} on ${{ github.ref_name }} by
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "research" ]
   workflow_dispatch:
     inputs:
       perform_deploy:
@@ -43,8 +43,8 @@ env:
   BLACKDUCK_ENABLED: 'false'
   SONARQUBE_ENABLED: 'true'
   STAGE_SLOT_NAME: 'staging'
-  PERFORM_DEPLOY: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_deploy) }}
-  PERFORM_SWAP: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_swap) }}
+  # PERFORM_DEPLOY: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_deploy) }}
+  # PERFORM_SWAP: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_swap) }}
 
 permissions:
   contents: read
@@ -57,6 +57,8 @@ jobs:
     # tmp
     - name: show context
       run: |
+        echo perform_deploy: '${{ inputs.perform_deploy }}'
+        echo perform_swap: '${{ inputs.perform_swap }}'
         echo github: '${{ toJSON(github) }}'
         echo env: '${{ toJSON(env) }}'
         echo vars: '${{ toJSON(vars) }}'
@@ -150,7 +152,8 @@ jobs:
       run: pwd
 
   deploy:
-    if: ${{ env.PERFORM_DEPLOY }}
+    if: false
+    # if: ${{ env.PERFORM_DEPLOY }}
     needs: build
     permissions:
       contents: read
@@ -223,7 +226,7 @@ jobs:
       run: pwd
     
     - name: Swap slots
-      if: ${{ env.PERFORM_SWAP }}
+      # if: ${{ env.PERFORM_SWAP }}
       run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
