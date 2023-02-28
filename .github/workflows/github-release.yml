@@ -1,0 +1,33 @@
+name:  Create GitHub Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: self-hosted
+    steps:
+    
+    # checkout code    
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    # dump token
+    # - name: dump token
+    #  run: echo ${{ secrets.GITHUB_TOKEN }} > github.token
+
+    # create release
+    - name: Create release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.run_number }}
+        release_name: Release ${{ github.ref }} ${{ github.run_number }}
+        draft: false
+        prerelease: false

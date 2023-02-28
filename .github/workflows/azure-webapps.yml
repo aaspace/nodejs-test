@@ -148,7 +148,7 @@ jobs:
       run: pwd
 
   deploy:
-    if: false # ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
     needs: build
     permissions:
       contents: read
