@@ -43,8 +43,6 @@ env:
   BLACKDUCK_ENABLED: 'false'
   SONARQUBE_ENABLED: 'true'
   STAGE_SLOT_NAME: 'staging'
-  PERFORM_DEPLOY: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
-  PERFORM_SWAP: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_swap) }}
 
 permissions:
   contents: read
@@ -57,27 +55,9 @@ jobs:
     # tmp
     - name: show context
       run: |
-        echo inputs: '${{ inputs }}'
-        echo perform_deploy: '${{ inputs.perform_deploy }}'
-        echo perform_deploy2: ${{ env.PERFORM_DEPLOY }}
-        echo perform_swap: '${{ inputs.perform_swap }}'
-        echo perform_swap2: ${{ env.PERFORM_SWAP }}
         echo env: '${{ toJSON(env) }}'
         echo vars: '${{ toJSON(vars) }}'
         echo github: '${{ toJSON(github) }}'
-        
-    - name: check
-      if: ${{ env.PERFORM_DEPLOY }}
-      run: pwd
-    - name: check2
-      if: ${{ env.PERFORM_DEPLOY == 'true' }}
-      run: pwd
-    - name: check3
-      if: env.PERFORM_DEPLOY
-      run: pwd
-    - name: check4
-      if: env.PERFORM_DEPLOY == 'true'
-      run: pwd
         
     - name: Checkout
       uses: actions/checkout@v3
@@ -167,15 +147,8 @@ jobs:
       if: env.BLACKDUCK_ENABLED == 'true'
       run: pwd
 
-  depl:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
-    needs: build
-    runs-on: self-hosted
-    steps:
-    - run: pwd
-
   deploy:
-    if: false
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
     needs: build
     permissions:
       contents: read
@@ -248,7 +221,7 @@ jobs:
       run: pwd
     
     - name: Swap slots
-      if: false # env.PERFORM_SWAP
+      if: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_swap) }}
       run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
