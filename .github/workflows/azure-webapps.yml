@@ -51,7 +51,7 @@ permissions:
 
 jobs:
   build:
-    if: ${{ env.PERFORM_DEPLOY }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
     runs-on: self-hosted
     steps:
     
