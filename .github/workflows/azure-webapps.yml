@@ -51,7 +51,6 @@ permissions:
 
 jobs:
   build:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
     runs-on: self-hosted
     steps:
     
@@ -169,22 +168,11 @@ jobs:
       run: pwd
 
   depl:
-    # if: env.PERFORM_DEPLOY == 'true'
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
     needs: build
     runs-on: self-hosted
     steps:
-    - name: check
-      if: ${{ env.PERFORM_DEPLOY }}
-      run: pwd
-    - name: check2
-      if: ${{ env.PERFORM_DEPLOY == 'true' }}
-      run: pwd
-    - name: check3
-      if: env.PERFORM_DEPLOY
-      run: pwd
-    - name: check4
-      if: env.PERFORM_DEPLOY == 'true'
-      run: pwd
+    - run: pwd
 
   deploy:
     if: false
