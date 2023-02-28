@@ -18,6 +18,7 @@
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
 
 name: Build and Deploy
+run-name: Build and Deploy. ${{ github.event_name}} on ${{ github.ref_name }} by ${{ github.actor }}
 
 on:
   push:
@@ -28,10 +29,10 @@ on:
         required: true
         type: boolean
         default: true
-      # perform_swap:
-        # required: true
-        # type: boolean
-        # default: true
+      perform_swap:
+        required: true
+        type: boolean
+        default: true
 
 env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
@@ -51,13 +52,12 @@ jobs:
     runs-on: self-hosted
     steps:
     
-    # tmp show context:
-    - name: github context
-      run: echo '${{ toJSON(github) }}'
-    - name: env context
-      run: echo '${{ toJSON(env) }}'
-    - name: vars context
-      run: echo '${{ toJSON(vars) }}'
+    # tmp
+    - name: show context
+      run: |
+        echo github: '${{ toJSON(github) }}'
+        echo env: '${{ toJSON(env) }}'
+        echo vars: '${{ toJSON(vars) }}'
         
     - name: Checkout
       uses: actions/checkout@v3
@@ -221,7 +221,7 @@ jobs:
       run: pwd
     
     - name: Swap slots
-      # if: ${{ inputs.perform_swap }}
+      if: ${{ inputs.perform_swap }}
       run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
