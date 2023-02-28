@@ -51,6 +51,7 @@ permissions:
 
 jobs:
   build:
+    if: ${{ env.PERFORM_DEPLOY }}
     runs-on: self-hosted
     steps:
     
