@@ -16,7 +16,7 @@ env:
 #  contents: read
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
     
