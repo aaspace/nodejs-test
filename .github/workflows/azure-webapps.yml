@@ -46,6 +46,8 @@ env:
   # PERFORM_DEPLOY: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_deploy) }}
   # PERFORM_SWAP: ${{ (github.event_name != 'workflow_dispatch' || inputs.perform_swap) }}
   PERFORM_DEPLOY: ${{ inputs.perform_deploy != false }}
+  PERFORM_SWAP: ${{ inputs.perform_swap }}
+  AAAAA: ${{ true }}
 
 permissions:
   contents: read
@@ -62,9 +64,9 @@ jobs:
         echo perform_deploy2: ${{ github.event.inputs.perform_deploy }}
         echo perform_swap: '${{ inputs.perform_swap }}'
         echo perform_swap2: ${{ github.event.inputs.perform_swap }}
-        echo github: '${{ toJSON(github) }}'
         echo env: '${{ toJSON(env) }}'
         echo vars: '${{ toJSON(vars) }}'
+        echo github: '${{ toJSON(github) }}'
         
     - name: Checkout
       uses: actions/checkout@v3
