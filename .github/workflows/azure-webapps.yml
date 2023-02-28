@@ -168,11 +168,22 @@ jobs:
       run: pwd
 
   depl:
-    if: env.PERFORM_DEPLOY == 'true'
+    # if: env.PERFORM_DEPLOY == 'true'
     needs: build
     runs-on: self-hosted
     steps:
-    - run: pwd
+    - name: check
+      if: ${{ env.PERFORM_DEPLOY }}
+      run: pwd
+    - name: check2
+      if: ${{ env.PERFORM_DEPLOY == 'true' }}
+      run: pwd
+    - name: check3
+      if: env.PERFORM_DEPLOY
+      run: pwd
+    - name: check4
+      if: env.PERFORM_DEPLOY == 'true'
+      run: pwd
 
   deploy:
     if: false
