@@ -58,7 +58,9 @@ jobs:
     - name: show context
       run: |
         echo perform_deploy: '${{ inputs.perform_deploy }}'
+        echo perform_deploy2: ${{ github.event.inputs.perform_deploy }}
         echo perform_swap: '${{ inputs.perform_swap }}'
+        echo perform_swap2: ${{ github.event.inputs.perform_swap }}
         echo github: '${{ toJSON(github) }}'
         echo env: '${{ toJSON(env) }}'
         echo vars: '${{ toJSON(vars) }}'
