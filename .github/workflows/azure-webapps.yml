@@ -18,6 +18,7 @@
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
 
 name: Build and Deploy
+run-name: Build and Deploy. ${{ github.event_name}} on ${{ github.ref_name }} by ${{ github.actor }}
 
 on:
   push:
@@ -25,6 +26,10 @@ on:
   workflow_dispatch:
     inputs:
       perform_deploy:
+        required: true
+        type: boolean
+        default: true
+      perform_swap:
         required: true
         type: boolean
         default: true
@@ -37,7 +42,7 @@ env:
   FORTIFY_ENABLED: 'false'
   BLACKDUCK_ENABLED: 'false'
   SONARQUBE_ENABLED: 'true'
-  SLOT_NAME: 'staging'
+  STAGE_SLOT_NAME: 'staging'
 
 permissions:
   contents: read
@@ -47,13 +52,12 @@ jobs:
     runs-on: self-hosted
     steps:
     
-    # tmp show context:
-    - name: github context
-      run: echo '${{ toJSON(github) }}'
-    - name: env context
-      run: echo '${{ toJSON(env) }}'
-    - name: vars context
-      run: echo '${{ toJSON(vars) }}'
+    # tmp
+    - name: show context
+      run: |
+        echo github: '${{ toJSON(github) }}'
+        echo env: '${{ toJSON(env) }}'
+        echo vars: '${{ toJSON(vars) }}'
         
     - name: Checkout
       uses: actions/checkout@v3
@@ -181,7 +185,7 @@ jobs:
       uses: Azure/appservice-settings@v1
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}        
-        # slot-name: # optional # Name of an existing slot other than the production slot. Default value is production
+        slot-name: ${{ env.STAGE_SLOT_NAME }} # optional # Name of an existing slot other than the production slot. Default value is production
         app-settings-json: ${{ steps.appsettings.outputs.content }}      # Application settings using the JSON syntax set as value of secret variable: APP_SETTINGS
         # connection-strings-json: # optional # Connection Strings using the JSON syntax set as value of secret variable: CONNECTION_STRINGS
         # general-settings-json: # optional # General configuration settings using dictionary syntax - Key Value pairs
@@ -192,7 +196,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        slot-name: ${{ env.SLOT_NAME }}
+        slot-name: ${{ env.STAGE_SLOT_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
     
@@ -217,7 +221,8 @@ jobs:
       run: pwd
     
     - name: Swap slots
-      run: az webapp deployment slot swap -s ${{ env.SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
+      if: ${{ inputs.perform_swap }}
+      run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
           
     - name: Az Logout
       if: env.UPDATE_APPSETTINGS_ENABLED == 'true'

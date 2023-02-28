@@ -6,7 +6,9 @@ const port = 8080;
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello Camp 4');
+  res.end("Hello Camp 4 " +
+  "\ncommon: " + process.env['Common_key'] + 
+  "\nslot: " + process.env['slot_key']);
   
   //for sonarqube testing
   /*

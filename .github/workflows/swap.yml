@@ -1,0 +1,35 @@
+name: Swap slots
+
+on:
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: aanodejstest                
+  STAGE_SLOT_NAME: 'staging'
+
+permissions:
+  contents: read
+
+jobs:
+  swap:
+    permissions:
+      contents: none
+    runs-on: self-hosted
+
+    steps:
+    - name: Azure Login
+      uses: Azure/login@v1
+      with:
+        creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
+    
+    - name: Swap slots
+      run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
+          
+    - name: Az Logout
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az logout
+          az cache purge
+          az account clear
+
