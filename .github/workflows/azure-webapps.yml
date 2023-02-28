@@ -43,8 +43,6 @@ env:
   BLACKDUCK_ENABLED: 'false'
   SONARQUBE_ENABLED: 'true'
   STAGE_SLOT_NAME: 'staging'
-  # PERFORM_DEPLOY: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
-  # PERFORM_SWAP: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_swap }}
 
 permissions:
   contents: read
@@ -150,7 +148,7 @@ jobs:
       run: pwd
 
   deploy:
-    if: false # ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
     needs: build
     permissions:
       contents: read
