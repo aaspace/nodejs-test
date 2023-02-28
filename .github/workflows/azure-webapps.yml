@@ -167,8 +167,15 @@ jobs:
       if: env.BLACKDUCK_ENABLED == 'true'
       run: pwd
 
+  depl:
+    if: env.PERFORM_DEPLOY
+    needs: build
+    runs-on: self-hosted
+    steps:
+    - run: pwd
+
   deploy:
-    if: false # env.PERFORM_DEPLOY
+    if: false
     needs: build
     permissions:
       contents: read
