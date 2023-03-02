@@ -24,15 +24,6 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-    inputs:
-      perform_deploy:
-        required: true
-        type: boolean
-        default: true
-      perform_swap:
-        required: true
-        type: boolean
-        default: true
 
 env:
   AZURE_WEBAPP_NAME: aanodejstest    # set this to your application's name
@@ -49,189 +40,62 @@ permissions:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-    
-    # tmp
-    - name: show context
-      run: |
-        echo env: '${{ toJSON(env) }}'
-        echo vars: '${{ toJSON(vars) }}'
-        echo github: '${{ toJSON(github) }}'
         
     - name: Checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - name: Npm clean cache (needed?)
-      run: pwd
-
     - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+      run: pwd
 
     - name: Copy .npmrc (TBD)
       run: pwd
 
-    - name: Java Installer for Fortify (TBD)
-      if: env.FORTIFY_ENABLED == 'true'
-      run: pwd
-
-    - name: Install Foritify packages (TBD)
-      if: env.FORTIFY_ENABLED == 'true'
-      run: pwd
-
-    - name: Extract Tar file for Fortify (TBD)
-      if: env.FORTIFY_ENABLED == 'true'
-      run: pwd
-
-    - name: Scan - Fortify (TBD)
-      if: env.FORTIFY_ENABLED == 'true'
-      run: pwd
-
-    - name: Publish - Fortify report (TBD)
-      if: env.FORTIFY_ENABLED == 'true'
-      run: pwd
-
     - name: npm install, build(, and test)
-      run: |
-        npm install
-        npm run build --if-present
-        npm run test --if-present
+      run: pwd
 
     - name: 'Archive production artifacts'
-      run: |
-        mkdir -p ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        tar -czvf ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz *
+      run: pwd
   
     - name: Upload artifact for deployment job
-      uses: actions/upload-artifact@v3
-      with:
-        name: node-app
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz
-
-    # SonarQube Scan
-    - name: Scan code with SonarQube
-      if: env.SONARQUBE_ENABLED == 'true'
-      uses: sonarsource/sonarqube-scan-action@master
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-    # Collect the SonarQube Quality Gate status
-    - name: SonarQube Quality Gate check
-      if: env.SONARQUBE_ENABLED == 'true'
-      id: sonarqube-quality-gate-check
-      uses: sonarsource/sonarqube-quality-gate-action@master
-      # Force to fail step after specific time.
-      timeout-minutes: 5
-      env:
-       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
-
-    # Stop pipeline if Quality Gate failed.
-    # The possible outputs of the `quality-gate-status` variable are `PASSED`, `WARN` or `FAILED`.
-    - name: "Check SonarQube Quality Gate Status"
-      if: env.SONARQUBE_ENABLED == 'true'
-      run: |
-        echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
-        if [ "${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}" != "PASSED" ]; then
-          echo "Quality Gate failed"
-          exit 1
-        fi
-
-    - name: Scan BlackDuck (TBD)
-      if: env.BLACKDUCK_ENABLED == 'true'
       run: pwd
 
+
   deploy:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_deploy }}
     needs: build
     permissions:
       contents: read
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     environment:
       name: 'Development'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
     - name: Download artifact from build job
-      uses: actions/download-artifact@v3
-      with:
-        name: node-app
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      run: pwd
 
     - name: Extract artifact
-      run: |
-        tar -xvf ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/node-app.tar.gz -C ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      run: pwd
 
     - name: Azure Login
-      if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
-      uses: Azure/login@v1
-      with:
-        creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
-
-    - name: Read appsettings
-      id: appsettings
-      uses: juliangruber/read-file-action@v1
-      with:
-        path: ./appsettings.json
-    
+      run: pwd
+          
     - name: Update App Service Settings
-      if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
-      uses: Azure/appservice-settings@v1
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}        
-        slot-name: ${{ env.STAGE_SLOT_NAME }} # optional # Name of an existing slot other than the production slot. Default value is production
-        app-settings-json: ${{ steps.appsettings.outputs.content }}      # Application settings using the JSON syntax set as value of secret variable: APP_SETTINGS
-        # connection-strings-json: # optional # Connection Strings using the JSON syntax set as value of secret variable: CONNECTION_STRINGS
-        # general-settings-json: # optional # General configuration settings using dictionary syntax - Key Value pairs
-        # mask-inputs: # optional, default is true # Set it to false if you want to provide input jsons as plain text/you do not want input json values to be masked. This will apply to all input jsons. Default is true
-      
-    - name: Deploy to Stage slot
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        slot-name: ${{ env.STAGE_SLOT_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-    
-    - name: Wait validation (TBD)
       run: pwd
       
-    - name: Health check
-      uses: jtalk/url-health-check-action@v3
-      with:
-        # Check the following URLs one by one sequentially
-        url: ${{ vars.STAGE_SLOT_URL }}
-        # Follow redirects, or just report success on 3xx status codes
-        follow-redirect: false # Optional, defaults to "false"
-        # Fail this action after this many failed attempts
-        max-attempts: 1 # Optional, defaults to 1
-        # Delay between retries
-        retry-delay: 5s # Optional, only applicable to max-attempts > 1
-        # Retry all errors, including 404. This option might trigger curl upgrade.
-        retry-all: false # Optional, defaults to "false"
-    
+    - name: Deploy to Stage slot
+      run: pwd
+              
     - name: Wait approve (TBD)
       run: pwd
     
     - name: Swap slots
-      if: ${{ github.event_name != 'workflow_dispatch' || inputs.perform_swap }}
-      run: az webapp deployment slot swap -s ${{ env.STAGE_SLOT_NAME }} -n ${{ env.AZURE_WEBAPP_NAME }} -g ${{ secrets.AZ_RESOURCE_GROUP }}
+      run: pwd
           
     - name: Az Logout
-      if: env.UPDATE_APPSETTINGS_ENABLED == 'true'
-      uses: azure/CLI@v1
-      with:
-        inlineScript: |
-          az logout
-          az cache purge
-          az account clear
+      run: pwd
 
     # create a release
     #- name: Create a Release
